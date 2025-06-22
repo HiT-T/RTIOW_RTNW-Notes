@@ -9,8 +9,8 @@ class Ray {
         Ray(const Point3d& origin, const Vec3d& direction) : orig(origin), dir(direction) {}
 
         // pass const member values defaultly, but caller can copy them into mutable ones.
-        const Point3d& origin() { return orig; }
-        const Vec3d& direction() { return dir; }
+        const Point3d& origin() const { return orig; }
+        const Vec3d& direction() const { return dir; }
 
         Point3d at(double t) const {
             return orig + t*dir;
