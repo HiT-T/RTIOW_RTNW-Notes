@@ -1,3 +1,6 @@
+#include "color.h"
+#include "vec3d.h"
+
 #include <iostream>
 
 int main() {
@@ -10,18 +13,13 @@ int main() {
     (void)fprintf(fp, "P6\n%d %d\n255\n", image_width, image_height);
 
     for (auto j = 0; j < image_height; j++) {
+        std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
         for (auto i = 0; i < image_width; i++) {
-            auto r = double(i) / (image_width-1);
-            auto g = double(j) / (image_height-1);
-            auto b = 0.0;
-
-            static unsigned char color[3];
-            color[0] = unsigned char(255.999 * r);
-            color[1] = unsigned char(255.999 * g);
-            color[2] = unsigned char(255.999 * b);
-
-            fwrite(color, 1, 3, fp);
+            auto pixel_color = Color(double(i) / image_width, double(j) / image_height, .0);
+            write_color(fp, pixel_color);
         }
     }
+    
     fclose(fp);
+    std::clog << "\rDone.                 \n";
 }
