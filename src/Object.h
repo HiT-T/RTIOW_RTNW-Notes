@@ -9,12 +9,12 @@ class Intersection {
         Point3d p;
         Vector3d normal;
         double distance; // which is t (t>=0).
-        bool happens_outside; // if ray-object intersection happens at object's outer surface.
+        bool happend_outside; // if ray-object intersection happens at object's outer surface.
 
         // this guarantees normal always points agianst the ray.
         void set_normal(const Ray& r, const Vector3d& outward_normal) {
-            happens_outside = dotProduct(r.direction(), outward_normal) < 0.0 ? true : false;
-            normal = happens_outside ? outward_normal : -outward_normal;
+            happend_outside = dotProduct(r.direction(), outward_normal) < 0.0 ? true : false;
+            normal = happend_outside ? outward_normal : -outward_normal;
         }
 };
 
