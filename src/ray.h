@@ -1,16 +1,16 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "vec3d.h"
+#include "Vector3d.h"
 
 class Ray {
     public:
         Ray() {}
-        Ray(const Point3d& origin, const Vec3d& direction) : orig(origin), dir(direction) {}
+        Ray(const Point3d& origin, const Vector3d& direction) : orig(origin), dir(direction) {}
 
         // pass const member values defaultly, but caller can copy them into mutable ones.
         const Point3d& origin() const { return orig; }
-        const Vec3d& direction() const { return dir; }
+        const Vector3d& direction() const { return dir; }
 
         Point3d at(double t) const {
             return orig + t*dir;
@@ -18,7 +18,7 @@ class Ray {
 
     private:
         Point3d orig;
-        Vec3d dir;
+        Vector3d dir;
 };
 
 #endif

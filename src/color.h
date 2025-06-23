@@ -1,13 +1,13 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "vec3d.h"
+#include "Vector3d.h"
 
 #include <iostream>
 
-using Color = Vec3d;
+using Color = Vector3d;
 
-void write_color(FILE*& fp, const Vec3d& pixel_color) {
+void write_color(FILE*& fp, const Vector3d& pixel_color) {
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();

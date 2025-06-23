@@ -1,16 +1,10 @@
-#include "color.h"
-#include "ray.h"
-#include "vec3d.h"
+#include "Sphere.h"
+#include "Object.h"
+#include "Color.h"
+#include "Ray.h"
+#include "Vector3d.h"
 
 #include <iostream>
-
-bool hitSphere(const Vec3d& C, double radius, const Ray& r) {
-    Vec3d d = r.direction(), qc = C - r.origin();
-    auto a = dotProduct(d, d);
-    auto b = -2 * dotProduct(d, qc);
-    auto c = dotProduct(qc, qc) - radius*radius;
-    return (b*b - 4*a*c >= 0);
-}
 
 int main() {
     
@@ -21,7 +15,7 @@ int main() {
 
     // define camera & viewport related params.
     auto eye_pos = Point3d(.0,.0,.0);
-    auto viewport_width = 2.0, viewport_height = viewport_width / (double(image_width)/image_height);
+    auto viewport_height = 2.0, viewport_width = viewport_height * (double(image_width)/image_height);
 
     // store RGB color values into image.
      FILE* fp = fopen("binary.ppm", "wb");
@@ -35,19 +29,23 @@ int main() {
             auto y = (0.5 - (j + 0.5) / image_height) * viewport_height;
 
             // create a ray based on the direction value.
-            auto dir = normalized(Vec3d(x, y, -1));
+            auto dir = normalize(Vector3d(x, y, -1));
             auto r = Ray(eye_pos, dir);
 
-            // compute color of the ray.
+            // compute color of the ray/pixel.
             auto pixel_color = Color();
-            if (hitSphere(Point3d(0,0,-1), 0.5, r)) {
-                pixel_color = Color(1, 0, 0);
-            }
-            else {
+            auto s = Sphere(Point3d(0,0,-1), 0.5);
+            auto isect = Intersection();
+            // if intersect and the closest intersection has a positive t.
+            if (s.intersect(r, 0, std::numeric_limits<double>::infinity(), isect)) {
+                Vector3d N = isect.normal;
+                pixel_color = 0.5 * Color(N.x()+1,N.y()+1,N.z()+1);
+            } else {
                 auto a = 0.5 + r.direction().y() / viewport_height;
                 pixel_color = (1-a) * Color(1.0,1.0,1.0) + a * Color(0.5,0.7,1.0);
             }
 
+            // write the computed pixel_color into image.
             write_color(fp, pixel_color);
         }
     }
