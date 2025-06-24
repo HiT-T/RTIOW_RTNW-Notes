@@ -16,6 +16,7 @@ int main() {
     Renderer r;
     r.aspect_ratio = 16.0 / 9.0;
     r.image_width = 400;
+    r.spp = 100;
 
     // render the image.
     r.render(scene);

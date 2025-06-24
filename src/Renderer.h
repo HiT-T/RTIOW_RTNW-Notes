@@ -5,6 +5,7 @@ class Renderer {
     public:
         double aspect_ratio = 1.0;
         int image_width = 100;
+        int spp = 10; // count of samples per pixel.
 
         Renderer() {}
 
@@ -15,35 +16,25 @@ class Renderer {
             FILE* fp = fopen("binary.ppm", "wb");
             (void)fprintf(fp, "P6\n%d %d\n255\n", image_width, image_height);
 
-            int spp = 10; // count of samples per pixel.
             std::cout << "SPP: " << spp << "\n";
 
             for (auto j = 0; j < image_height; j++) {
-                std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
                 for (auto i = 0; i < image_width; i++) {
                     // compute color of the ray/pixel.
                     auto pixel_color = Color();
-
                     for (int s = 0; s < spp; s++) {
                         auto r = get_ray(i, j);
-                        auto isect = Intersection();
-                        // if intersect and the closest intersection has a positive t.
-                        if (scene.intersect(r, Interval(0, infinity), isect)) {
-                            Vector3d N = isect.normal;
-                            pixel_color = 0.5 * Color(N.x()+1,N.y()+1,N.z()+1);
-                        } else {
-                            auto a = 0.5 + r.direction().y() / viewport_height;
-                            pixel_color = (1-a) * Color(1.0,1.0,1.0) + a * Color(0.5,0.7,1.0);
-                        }
+                        pixel_color += get_color(r, scene);
                     }
 
                     // write the computed pixel_color into image.
-                    write_color(fp, pixel_color);
+                    write_color(fp, pixel_color / spp);
                 }
+                UpdateProgress(j / double(image_height));
             }
+            UpdateProgress(1.);
     
             fclose(fp);
-            std::clog << "\rDone.                 \n";
         }
 
         private:
@@ -60,16 +51,30 @@ class Renderer {
                 viewport_height = 2.0, viewport_width = viewport_height * (double(image_width)/image_height);
             }
 
-            Ray get_ray(int i, int j) {
-                    // compute the viewport coordinates based on image indices.
-                    auto x = ((i + 0.5) / image_width - 0.5) * viewport_width;
-                    auto y = (0.5 - (j + 0.5) / image_height) * viewport_height;
+            Ray get_ray(int i, int j) const {
+                double dx = random_double();
+                double dy = random_double();
 
-                    // create a ray based on the direction value.
-                    auto dir = normalize(Vector3d(x, y, -1));
-                    auto r = Ray(eye_pos, dir);
-                     
-                    return r;
+                // compute the viewport coordinates based on image indices.
+                auto x = ((i + dx) / double(image_width) - 0.5) * viewport_width;
+                auto y = (0.5 - (j + dy) / double(image_height)) * viewport_height;
+
+                // return a ray created based on the direction value.
+                auto dir = normalize(Vector3d(x, y, -1));
+                return Ray(eye_pos, dir);
+            }
+
+            Color get_color(const Ray& r, const Object& scene) const {
+                auto isect = Intersection();
+
+                // if intersect and the closest intersection has a positive t.
+                if (scene.intersect(r, Interval(0, infinity), isect)) {
+                    Vector3d N = isect.normal;
+                    return 0.5 * Color(N.x()+1,N.y()+1,N.z()+1);
+                } else {
+                    auto a = 0.5 + r.direction().y() / viewport_height;
+                    return (1-a) * Color(1.0,1.0,1.0) + a * Color(0.5,0.7,1.0);
+                }
             }
 };
 
