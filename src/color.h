@@ -1,10 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "Vector3d.h"
-
-#include <iostream>
-
 using Color = Vector3d;
 
 void write_color(FILE*& fp, const Vector3d& pixel_color) {

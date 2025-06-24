@@ -7,7 +7,7 @@ class Sphere : public Object {
     public:
         Sphere(const Point3d& center, double radius) : center(center), radius(std::fmax(0,radius)) {}
 
-        bool intersect(const Ray& r, double t_min, double t_max, Intersection& isect) const override {
+        bool intersect(const Ray& r, Interval t_interval, Intersection& isect) const override {
             Vector3d d = r.direction(), oc = center - r.origin();
             auto a = d.norm_squared();
             auto h = dotProduct(d, oc);
@@ -20,9 +20,9 @@ class Sphere : public Object {
 
             auto sqrtd = std::sqrt(discriminant);
             auto t = (h - sqrtd) / a;
-            if (t <= t_min || t >= t_max) {
+            if (!t_interval.surrounds(t)) {
                 t = (h + sqrtd) / a;
-                if (t <= t_min || t >= t_max) {
+                if (!t_interval.surrounds(t)) {
                     return false;
                 }
             }

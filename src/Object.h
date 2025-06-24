@@ -1,8 +1,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "ray.h"
-
 // this stores the intersection information between ray & objects.
 class Intersection {
     public:
@@ -24,7 +22,7 @@ class Object {
         virtual ~Object() = default;
 
         // stores result both in return value (if intersect) & isect (intersect data).
-        virtual bool intersect(const Ray& r, double t_min, double t_max, Intersection& isect) const = 0; 
+        virtual bool intersect(const Ray& r, Interval t_interval, Intersection& isect) const = 0; 
 };
 
 #endif
