@@ -9,9 +9,10 @@ void write_color(FILE*& fp, const Vector3d& pixel_color) {
     auto b = pixel_color.z();
 
     static unsigned char color[3];
-    color[0] = unsigned char(255.999 * r);
-    color[1] = unsigned char(255.999 * g);
-    color[2] = unsigned char(255.999 * b);
+    static const Interval intensity(1e-3,.999);
+    color[0] = unsigned char(255.999 * intensity.clamp(r));
+    color[1] = unsigned char(255.999 * intensity.clamp(g));
+    color[2] = unsigned char(255.999 * intensity.clamp(b));
 
     fwrite(color, 1, 3, fp);
 }

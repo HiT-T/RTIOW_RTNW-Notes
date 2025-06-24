@@ -14,6 +14,8 @@ class Interval {
 
         double surrounds(double t) { return min < t && t < max; }
 
+        double clamp(double x) const { return std::max(min, std::min(max, x)); }
+ 
         static const Interval empty, universe;
 };
 const Interval Interval::empty = Interval(+infinity, -infinity);
