@@ -6,6 +6,7 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <chrono>
 
 // C++ Standard Usings.
 
@@ -22,14 +23,14 @@ const double pi = 3.1415926535897932385;
 inline double degrees_to_radians(double degrees) { return (degrees * pi) / 180.0; }
 
 // returns a random double number in [0,1).
-inline double random_double() {
+inline double sample_double() {
     static std::uniform_real_distribution<double> distribution(0.0, 1.0);
     static std::mt19937 generator;
     return distribution(generator);
 }
 
 // returns a random double number in [min,max).
-inline double random_double(double min, double max) { return min + (max-min) * random_double(); }
+inline double sample_double(double min, double max) { return min + (max-min) * sample_double(); }
 
 inline void UpdateProgress(double progress)
 {
@@ -43,8 +44,6 @@ inline void UpdateProgress(double progress)
         else std::clog << " ";
     }
     std::clog << "] " << int(progress * 100.0) << " %\r" << std::flush;
-
-    if (progress == 1.) { std::clog << "\nDone!\n"; }
 };
 
 // Common Headers.

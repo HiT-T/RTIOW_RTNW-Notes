@@ -51,6 +51,14 @@ class Vector3d {
         double norm() const {
             return std::sqrt(norm_squared());
         }
+
+        static Vector3d sample() { 
+            return Vector3d(sample_double(), sample_double(), sample_double()); 
+        }
+
+        static Vector3d sample(double min, double max) {
+             return Vector3d(sample_double(min, max), sample_double(min, max), sample_double(min, max));
+        }
 };
 
 // alias makes codes more readable.
@@ -98,6 +106,25 @@ inline Vector3d crossProduct(const Vector3d& u, const Vector3d& v) {
 
 inline Vector3d normalize(const Vector3d& v) {
     return v / v.norm();
+}
+
+inline Vector3d sample_unit_vector() {
+    while (true) {
+        auto p = Vector3d::sample(-1,1);
+        auto p_norm = p.norm();
+        if (1e-160 < p_norm && p_norm <= 1) {
+            return p / p_norm;
+        }
+    }
+}
+
+inline Vector3d sample_outward_dir(const Vector3d& normal) {
+    auto random_dir = sample_unit_vector();
+    if (dotProduct(random_dir, normal) > 0.0) {
+        return random_dir;
+    } else {
+        return -random_dir;
+    }
 }
 
 #endif

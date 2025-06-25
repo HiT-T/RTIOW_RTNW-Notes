@@ -19,5 +19,14 @@ int main() {
     r.spp = 100;
 
     // render the image.
+    auto start = std::chrono::system_clock::now();
     r.render(scene);
+    auto stop = std::chrono::system_clock::now();
+
+    std::cout << "\nDone!\n";
+    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << "h";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() << "min";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() << "s\n";
+
+    return 0;
 }

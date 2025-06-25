@@ -41,6 +41,7 @@ class Renderer {
             int image_height = 0;
             Point3d eye_pos;
             double viewport_height = .0, viewport_width = .0;
+            double RussianRoulette = 0.8;
 
             void initialize() {
                 image_height = int(image_width / aspect_ratio);
@@ -52,8 +53,8 @@ class Renderer {
             }
 
             Ray get_ray(int i, int j) const {
-                double dx = random_double();
-                double dy = random_double();
+                double dx = sample_double();
+                double dy = sample_double();
 
                 // compute the viewport coordinates based on image indices.
                 auto x = ((i + dx) / double(image_width) - 0.5) * viewport_width;
@@ -67,14 +68,20 @@ class Renderer {
             Color get_color(const Ray& r, const Object& scene) const {
                 auto isect = Intersection();
 
-                // if intersect and the closest intersection has a positive t.
-                if (scene.intersect(r, Interval(0, infinity), isect)) {
-                    Vector3d N = isect.normal;
-                    return 0.5 * Color(N.x()+1,N.y()+1,N.z()+1);
-                } else {
+                // if doesn't intersect or t<.001, return background color.
+                // note: t_min>0 avoids self-intersection caused by floating point rounding errors.
+                if (!scene.intersect(r, Interval(0.001, infinity), isect)) {
                     auto a = 0.5 + r.direction().y() / viewport_height;
                     return (1-a) * Color(1.0,1.0,1.0) + a * Color(0.5,0.7,1.0);
                 }
+
+                // test RR to decide if continues bouncing.
+                if (sample_double() > RussianRoulette) { return Color(); }
+
+                // if RR passes, compute radiance by recursively self-calling, which contains direct & indirect illumination.
+                // here I use Lambertion Diffuse Material.
+                auto wo = normalize(isect.normal + sample_unit_vector());
+                return 0.5 * get_color(Ray(isect.p, wo), scene) / RussianRoulette; // 0.5 == pi * f_r
             }
 };
 
