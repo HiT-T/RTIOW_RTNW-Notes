@@ -16,7 +16,7 @@ class Vector3d {
         double operator[](int i) const { return e[i]; } // guarantees const objects(' member variables) unchanged.
         double& operator[](int i) { return e[i]; } // allows mutable objects to be changed.
 
-        Vector3d& operator+=(const Vector3d& v) {
+        Vector3d& operator+=(const Vector3d &v) {
             e[0] += v.e[0];
             e[1] += v.e[1];
             e[2] += v.e[2];
@@ -24,7 +24,7 @@ class Vector3d {
             return *this;
         }
 
-        Vector3d& operator-=(const Vector3d& v) {
+        Vector3d& operator-=(const Vector3d &v) {
             e[0] -= v.e[0];
             e[1] -= v.e[1];
             e[2] -= v.e[2];
@@ -66,45 +66,45 @@ using Point3d = Vector3d;
 
 // functions that utilize Vector3d objects.
 
-inline std::ostream& operator<<(std::ostream& out, const Vector3d& v) {
+inline std::ostream& operator<<(std::ostream &out, const Vector3d &v) {
     return out << v.e[0] << " " << v.e[1] << " " << v.e[2];
 }
 
-inline Vector3d operator+(const Vector3d& u, const Vector3d& v) {
+inline Vector3d operator+(const Vector3d &u, const Vector3d &v) {
     return Vector3d(u.e[0]+v.e[0], u.e[1]+v.e[1], u.e[2]+v.e[2]);
 }
 
-inline Vector3d operator-(const Vector3d& u, const Vector3d& v) {
+inline Vector3d operator-(const Vector3d &u, const Vector3d &v) {
     return Vector3d(u.e[0]-v.e[0], u.e[1]-v.e[1], u.e[2]-v.e[2]);
 }
 
-inline Vector3d operator*(const Vector3d& u, const Vector3d& v) {
+inline Vector3d operator*(const Vector3d &u, const Vector3d &v) {
     return Vector3d(u.e[0]*v.e[0], u.e[1]*v.e[1], u.e[2]*v.e[2]);
 }
 
-inline Vector3d operator*(double t, const Vector3d& v) {
+inline Vector3d operator*(double t, const Vector3d &v) {
     return Vector3d(t*v.e[0], t*v.e[1], t*v.e[2]);
 }
 
-inline Vector3d operator*(const Vector3d& v, double t) {
+inline Vector3d operator*(const Vector3d &v, double t) {
     return Vector3d(v.e[0]*t, v.e[1]*t, v.e[2]*t);
 }
 
-inline Vector3d operator/(const Vector3d& v, double t) {
+inline Vector3d operator/(const Vector3d &v, double t) {
     return Vector3d(v.e[0]/t, v.e[1]/t, v.e[2]/t);
 }
 
-inline double dotProduct(const Vector3d& u, const Vector3d& v) {
+inline double dotProduct(const Vector3d &u, const Vector3d &v) {
     return u.e[0]*v.e[0] + u.e[1]*v.e[1] + u.e[2]*v.e[2];
 }
 
-inline Vector3d crossProduct(const Vector3d& u, const Vector3d& v) {
+inline Vector3d crossProduct(const Vector3d &u, const Vector3d &v) {
     return Vector3d(u.e[1]*v.e[2] - v.e[1]*u.e[2], 
                  u.e[2]*v.e[0] - v.e[2]*u.e[0], 
                  u.e[0]*v.e[1] - v.e[0]*u.e[1]);
 }
 
-inline Vector3d normalize(const Vector3d& v) {
+inline Vector3d normalize(const Vector3d &v) {
     return v / v.norm();
 }
 
@@ -118,7 +118,7 @@ inline Vector3d sample_unit_vector() {
     }
 }
 
-inline Vector3d sample_outward_dir(const Vector3d& normal) {
+inline Vector3d sample_outward_dir(const Vector3d &normal) {
     auto random_dir = sample_unit_vector();
     if (dotProduct(random_dir, normal) > 0.0) {
         return random_dir;

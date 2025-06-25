@@ -9,7 +9,7 @@ class Renderer {
 
         Renderer() {}
 
-        void render(const Object& scene) {
+        void render(const Object &scene) {
             initialize();
 
             // calculate and store RGB color values into image.
@@ -65,12 +65,12 @@ class Renderer {
                 return Ray(eye_pos, dir);
             }
 
-            Color get_color(const Ray& r, const Object& scene) const {
+            Color get_color(const Ray &r, const Object &scene) const {
                 auto isect = Intersection();
 
                 // if doesn't intersect or t<.001, return background color.
-                // note: t_min>0 avoids self-intersection caused by floating point rounding errors.
-                if (!scene.intersect(r, Interval(0.001, infinity), isect)) {
+                // note: t_min==1e-3 avoids self-intersection caused by floating point rounding errors.
+                if (!scene.intersect(r, Interval(1e-3, infinity), isect)) {
                     auto a = 0.5 + r.direction().y() / viewport_height;
                     return (1-a) * Color(1.0,1.0,1.0) + a * Color(0.5,0.7,1.0);
                 }

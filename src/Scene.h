@@ -17,12 +17,12 @@ class Scene : public Object {
 
         void add(shared_ptr<Object> object) { objects.push_back(object); }
 
-        bool intersect(const Ray& r, Interval t_interval, Intersection& isect) const override {
+        bool intersect(const Ray &r, Interval t_interval, Intersection& isect) const override {
             Intersection temp_isect;
             bool happened = false;
             double closest = t_interval.max;
 
-            for (const auto& object : objects) {
+            for (const auto &object : objects) {
                 if (object->intersect(r, Interval(t_interval.min, closest), temp_isect)) {
                     happened = true;
                     closest = temp_isect.distance;
