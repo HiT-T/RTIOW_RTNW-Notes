@@ -13,8 +13,8 @@ class Intersection {
         bool happend_outside; // if ray-object intersection happens at object's outer surface.
 
         // this guarantees normal always points agianst the ray.
-        void set_normal(const Ray &r, const Vector3d &outward_normal) {
-            happend_outside = dotProduct(r.direction(), outward_normal) < 0.0 ? true : false;
+        void set_normal(const Ray &ri, const Vector3d &outward_normal) {
+            happend_outside = dotProduct(ri.direction(), outward_normal) < 0.0 ? true : false;
             normal = happend_outside ? outward_normal : -outward_normal;
         }
 };
@@ -25,7 +25,7 @@ class Object {
         virtual ~Object() = default;
 
         // stores result both in return value (if intersect) & isect (intersect data).
-        virtual bool intersect(const Ray& r, Interval t_interval, Intersection& isect) const = 0; 
+        virtual bool intersect(const Ray& ri, Interval t_interval, Intersection& isect) const = 0; 
 };
 
 #endif

@@ -5,10 +5,11 @@
 
 class Sphere : public Object {
     public:
-        Sphere(const Point3d &center, double radius) : center(center), radius(std::fmax(0,radius)) {}
+        Sphere(const Point3d &center, double radius, shared_ptr<Material> m) 
+            : center(center), radius(std::fmax(0,radius)), m(m) {}
 
-        bool intersect(const Ray &r, Interval t_interval, Intersection &isect) const override {
-            Vector3d d = r.direction(), oc = center - r.origin();
+        bool intersect(const Ray &ri, Interval t_interval, Intersection &isect) const override {
+            Vector3d d = ri.direction(), oc = center - ri.origin();
             auto a = d.norm_squared();
             auto h = dotProduct(d, oc);
             auto c = oc.norm_squared() - radius*radius;
@@ -27,10 +28,10 @@ class Sphere : public Object {
                 }
             }
 
-            isect.p = r.at(t);
+            isect.p = ri.at(t);
             isect.distance = t;
             auto outward_normal = (isect.p - center) / radius;
-            isect.set_normal(r, outward_normal);
+            isect.set_normal(ri, outward_normal);
             isect.m = m;
 
             return true;

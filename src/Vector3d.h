@@ -52,6 +52,11 @@ class Vector3d {
             return std::sqrt(norm_squared());
         }
 
+        bool near_zero() const {
+            auto s = 1e-8;
+            return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s); 
+        }
+
         static Vector3d sample() { 
             return Vector3d(sample_double(), sample_double(), sample_double()); 
         }

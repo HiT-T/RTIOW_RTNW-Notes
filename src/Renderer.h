@@ -1,6 +1,9 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "Object.h"
+#include "Material.h"
+
 class Renderer {
     public:
         double aspect_ratio = 1.0;
@@ -65,13 +68,13 @@ class Renderer {
                 return Ray(eye_pos, dir);
             }
 
-            Color get_color(const Ray &r, const Object &scene) const {
+            Color get_color(const Ray &ri, const Object &scene) const {
                 auto isect = Intersection();
 
-                // if doesn't intersect or t<.001, return background color.
-                // note: t_min==1e-3 avoids self-intersection caused by floating point rounding errors.
-                if (!scene.intersect(r, Interval(1e-3, infinity), isect)) {
-                    auto a = 0.5 + r.direction().y() / viewport_height;
+                // if doesn't intersect or (t < .001), return background color.
+                // note: (t_min == 1e-3 (> 0)) avoids self-intersection caused by floating point rounding errors.
+                if (!scene.intersect(ri, Interval(1e-3, infinity), isect)) {
+                    auto a = 0.5 + ri.direction().y() / viewport_height;
                     return (1-a) * Color(1.0,1.0,1.0) + a * Color(0.5,0.7,1.0);
                 }
 
@@ -79,9 +82,13 @@ class Renderer {
                 if (sample_double() > RussianRoulette) { return Color(); }
 
                 // if RR passes, compute radiance by recursively self-calling, which contains direct & indirect illumination.
-                // here I use Lambertion Diffuse Material.
-                auto wo = normalize(isect.normal + sample_unit_vector());
-                return 0.5 * get_color(Ray(isect.p, wo), scene) / RussianRoulette; // 0.5 == pi * f_r
+                Color attenuation; Ray ro;
+                if (isect.m->scatter(ri, isect, attenuation, ro)) {
+                    return attenuation * get_color(ro, scene) / RussianRoulette;
+                }
+
+                // if the material doesn't scatter, stop ray tracing and return black color.
+                return Color();
             }
 };
 
