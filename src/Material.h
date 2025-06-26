@@ -19,7 +19,7 @@ class Diffuse : public Material {
 
         bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
         const override {
-            auto wo = isect.normal + sample_unit_vector();
+            Vector3d wo = isect.normal + sample_unit_vector();
             if (wo.near_zero()) {
                 wo = isect.normal;
             } else {
@@ -34,6 +34,17 @@ class Diffuse : public Material {
         Color albedo;  // here albedo == Kd == pi * f_r
 };
 
+inline Vector3d reflect(const Vector3d &wi, const Vector3d &N) {
+    return normalize(wi - 2 * dotProduct(wi, N) * N);
+}
+
+inline Vector3d refract(const Vector3d &wi, const Vector3d &N, double refraction_index) {
+    auto cos_i = std::fmin(dotProduct(-wi, N) , 1.0);
+    Vector3d wo_perp = refraction_index * (wi + cos_i * N);
+    Vector3d wo_parallel = -std::sqrt(std::fabs(1 - wo_perp.norm_squared())) * N;
+    return wo_perp + wo_parallel;
+}
+
 class Metal : public Material {
     public:
         Metal(const Color &albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1.0 ? fuzz : 1.0) {}
@@ -41,7 +52,7 @@ class Metal : public Material {
         bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
         const override {
             // fuzzy dir = specular reflection dir + random vector in fuzz unit sphere .
-            auto wo = reflect(ri.direction(), isect.normal) + fuzz * sample_unit_vector();
+            Vector3d wo = reflect(ri.direction(), isect.normal) + fuzz * sample_unit_vector();
             ro = Ray(isect.p, normalize(wo));
             attenuation = albedo;
 
@@ -55,9 +66,42 @@ class Metal : public Material {
         // defines the roughness of the metal's surface (1 >= fuzz >= 0).
         // note: (fuzz == 0) means specular, (fuzz == 1) means nearly diffuse.
         double fuzz;
+};
 
-        inline Vector3d reflect(const Vector3d &v, const Vector3d &n) const {
-            return normalize(v - 2 * dotProduct(v,n) * n);
+class Dielectric : public Material {
+    public:
+        Dielectric(double ior) : ior(ior) {}
+
+        bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
+        const override {
+            attenuation = Color(1.0, 1.0, 1.0);
+            double refraction_index = isect.happend_outside ? (1.0 / ior) : ior; // defaultly treat outside as air.
+
+            Vector3d wi = ri.direction(), N = isect.normal;
+            double cos_i = std::fmin(dotProduct(wi, N), 1.0);
+            double sin_i = std::sqrt(1 - cos_i*cos_i);
+
+            bool cannot_refract = refraction_index * sin_i > 1.0 ? true : false;
+            auto wo = Vector3d();
+            if (fresnel(cos_i, refraction_index) <= sample_double() || cannot_refract) {
+                wo = reflect(wi, N);
+            } else {
+                wo = refract(wi, N, refraction_index);
+            }
+
+            ro = Ray(isect.p, wo);
+            return true;
+        }
+
+    private:
+        // could be absolute ior (index of refraction), or relative (material's ior over enclosing material's).
+        double ior;
+
+        // use Schick's approximation to calculate reflectance.
+        static double fresnel(double cos_i, double reflection_index) {
+            auto r0 = (1.0 - reflection_index) / (1.0 + reflection_index);
+            r0 *= r0;
+            return r0 + (1-r0) * std::pow((1 - cos_i), 5);
         }
 };
 

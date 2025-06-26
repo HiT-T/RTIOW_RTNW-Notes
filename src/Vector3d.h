@@ -123,9 +123,9 @@ inline Vector3d sample_unit_vector() {
     }
 }
 
-inline Vector3d sample_outward_dir(const Vector3d &normal) {
+inline Vector3d sample_outward_dir(const Vector3d &N) {
     auto random_dir = sample_unit_vector();
-    if (dotProduct(random_dir, normal) > 0.0) {
+    if (dotProduct(random_dir, N) > 0.0) {
         return random_dir;
     } else {
         return -random_dir;
