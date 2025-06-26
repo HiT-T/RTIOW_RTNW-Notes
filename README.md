@@ -1,0 +1,1 @@
+This repository contains my note codes of learning <a href="https://raytracing.github.io/books/RayTracingInOneWeekend.html">RTIOW (Ray Tracing in One Weekend)</a> & <a href="https://raytracing.github.io/books/RayTracingTheNextWeek.html">RTNW (Ray Tracing: The Next Week)</a>.
