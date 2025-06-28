@@ -11,6 +11,7 @@ class Renderer {
         Renderer() {}
 
         void render(Scene &scene) {
+            
             scene.initialize();
 
             // calculate each pixel's RGB color value and store into image.
@@ -44,6 +45,7 @@ class Renderer {
             double RussianRoulette = 0.8;
 
             Color get_color(const Ray &ri, const Scene &scene) const {
+
                 auto isect = Intersection();
 
                 // if doesn't intersect or (t < .001), return background color.

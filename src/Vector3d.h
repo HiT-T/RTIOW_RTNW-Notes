@@ -109,11 +109,19 @@ inline Vector3d crossProduct(const Vector3d &u, const Vector3d &v) {
                  u.e[0]*v.e[1] - v.e[0]*u.e[1]);
 }
 
+inline Vector3d sample_in_unit_disk() {
+    while (true) {
+        auto p = Vector3d(sample_double(-1,1), sample_double(-1,1), 0);
+        if (p.norm_squared() < 1) 
+            return p;
+    }
+}
+
 inline Vector3d normalize(const Vector3d &v) {
     return v / v.norm();
 }
 
-inline Vector3d sample_unit_vector() {
+inline Vector3d sample_random_dir() {
     while (true) {
         auto p = Vector3d::sample(-1,1);
         auto p_norm = p.norm();
@@ -124,7 +132,7 @@ inline Vector3d sample_unit_vector() {
 }
 
 inline Vector3d sample_outward_dir(const Vector3d &N) {
-    auto random_dir = sample_unit_vector();
+    auto random_dir = sample_random_dir();
     if (dotProduct(random_dir, N) > 0.0) {
         return random_dir;
     } else {
