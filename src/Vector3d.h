@@ -112,7 +112,7 @@ inline Vector3d crossProduct(const Vector3d &u, const Vector3d &v) {
 inline Vector3d sample_in_unit_disk() {
     while (true) {
         auto p = Vector3d(sample_double(-1,1), sample_double(-1,1), 0);
-        if (p.norm_squared() < 1) 
+        if (p.norm_squared() < 1)
             return p;
     }
 }

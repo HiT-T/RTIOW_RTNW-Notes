@@ -66,9 +66,10 @@ class Scene : public Object {
                               + ((j + dy) * pixel_delta_v);
 
             auto ray_origin = (defocus_angle <= 0) ? eye_pos : sample_in_defocus_disk();
-            auto ray_dir = normalize(pixel_center - ray_origin);
+            auto ray_direction = normalize(pixel_center - ray_origin);
+            auto ray_time = sample_double();
 
-            return Ray(ray_origin, ray_dir);
+            return Ray(ray_origin, ray_direction, ray_time);
         }
 
         // shared_ptr ? 1. automatically frees memory; 2. allows multiple references.

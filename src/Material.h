@@ -25,7 +25,7 @@ class Diffuse : public Material {
             } else {
                 wo = normalize(wo);
             }
-            ro = Ray(isect.p, wo);
+            ro = Ray(isect.p, wo, ri.time());
             attenuation = albedo;
             return true;
         }
@@ -53,7 +53,7 @@ class Metal : public Material {
         const override {
             // fuzzy dir = specular reflection dir + random vector in fuzz unit sphere .
             Vector3d wo = reflect(ri.direction(), isect.normal) + fuzz * sample_random_dir();
-            ro = Ray(isect.p, normalize(wo));
+            ro = Ray(isect.p, normalize(wo), ri.time());
             attenuation = albedo;
 
             // if fuzzing produces inward ray, treat it as absorbed by returning false.
@@ -89,7 +89,7 @@ class Dielectric : public Material {
                 wo = refract(wi, N, refraction_index);
             }
 
-            ro = Ray(isect.p, wo);
+            ro = Ray(isect.p, wo, ri.time());
             return true;
         }
 

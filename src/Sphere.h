@@ -5,11 +5,18 @@
 
 class Sphere : public Object {
     public:
-        Sphere(const Point3d &center, double radius, shared_ptr<Material> m) 
-            : center(center), radius(std::fmax(0,radius)), m(m) {}
+        // static sphere
+        Sphere(const Point3d &static_center, double radius, shared_ptr<Material> m) 
+            : center(static_center, Vector3d(0,0,0)), radius(std::fmax(0,radius)), m(m) {}
+
+        // moving sphere
+        Sphere(const Point3d &center1, const Point3d &center2, double radius,
+               shared_ptr<Material> m) 
+            : center(center1, center2 - center1), radius(std::fmax(0,radius)), m(m) {}
 
         bool intersect(const Ray &ri, Interval t_interval, Intersection &isect) const override {
-            Vector3d d = ri.direction(), oc = center - ri.origin();
+            Point3d current_center = center.at(ri.time());
+            Vector3d d = ri.direction(), oc = current_center - ri.origin();
             auto a = d.norm_squared();
             auto h = dotProduct(d, oc);
             auto c = oc.norm_squared() - radius*radius;
@@ -30,14 +37,14 @@ class Sphere : public Object {
 
             isect.p = ri.at(t);
             isect.distance = t;
-            auto outward_normal = (isect.p - center) / radius;
+            auto outward_normal = (isect.p - current_center) / radius;
             isect.set_normal(ri, outward_normal);
             isect.m = m;
 
             return true;
         }
     private:
-        Point3d center;
+        Ray center; // allows center to move from start (t = 0) to end (t = 1).
         double radius;
         shared_ptr<Material> m;
 };

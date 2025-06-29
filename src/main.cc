@@ -9,7 +9,7 @@
 int main() {
 
     // create the scene with image size params.
-    Scene scene(1200, 16.0 / 9.0);
+    Scene scene(400, 16.0 / 9.0);
 
     // define materials.
     auto ground_material = make_shared<Diffuse>(Color(0.5, 0.5, 0.5));
@@ -27,7 +27,8 @@ int main() {
                     // diffuse
                     auto albedo = Color::sample() * Color::sample();
                     sphere_material = make_shared<Diffuse>(albedo);
-                    scene.add(make_shared<Sphere>(center, 0.2, sphere_material));
+                    auto center2 = center + Vector3d(0, sample_double(0,.5), 0);
+                    scene.add(make_shared<Sphere>(center, center2, 0.2, sphere_material));
                 } else if (choose_m < 0.95) {
                     // metal
                     auto albedo = Color::sample(0.5, 1);
@@ -63,7 +64,7 @@ int main() {
 
     // define renderer and image size.
     Renderer r;
-    r.spp = 1024;
+    r.spp = 100;
 
     // render the image.
     auto start = std::chrono::system_clock::now();
@@ -72,8 +73,8 @@ int main() {
 
     std::cout << "\nDone!\n";
     std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << "h";
-    std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() << "min";
-    std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() << "s\n";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() % 60 << "min";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
 
     return 0;
 }
