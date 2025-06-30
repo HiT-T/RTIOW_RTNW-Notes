@@ -1,5 +1,6 @@
 #include "global.h"
 
+#include "BVH.h"
 #include "Object.h"
 #include "Scene.h"
 #include "Material.h"
@@ -52,6 +53,9 @@ int main() {
 
     auto material3 = make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0);
     scene.add(make_shared<Sphere>(Point3d(4, 1, 0), 1.0, material3));
+
+    // build BVH.
+    scene = Scene(make_shared<BVHNode>(scene));
 
     // define camera params.
     scene.vfov     = 20;

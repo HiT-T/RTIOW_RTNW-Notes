@@ -54,7 +54,7 @@ class Sphere : public Object {
             return true;
         }
 
-        AABB get_AABB() { return aabb; }
+        AABB get_AABB() const override { return aabb; }
     
     private:
         Ray center; // allows center to move from start (t = 0) to end (t = 1).

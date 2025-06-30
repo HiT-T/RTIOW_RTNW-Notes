@@ -32,6 +32,9 @@ inline double sample_double() {
 // returns a random double number in [min,max).
 inline double sample_double(double min, double max) { return min + (max-min) * sample_double(); }
 
+// returns a random integer in [min,max].
+inline double sample_int(int min, int max) { return int(sample_double(min, max+1)); }
+
 inline void UpdateProgress(double progress)
 {
     int barWidth = 70;

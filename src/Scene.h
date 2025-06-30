@@ -99,8 +99,8 @@ class Scene : public Object {
             return happened;
         }
 
-        AABB get_AABB() { return aabb; }
-
+        AABB get_AABB() const override { return aabb; }
+    
     private:
         AABB aabb;
 
