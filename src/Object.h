@@ -1,6 +1,8 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include "AABB.h"
+
 class Material; // pre-defining solves circularity of references between Object & Material classes.
 
 // this stores the intersection information between ray & objects.
@@ -26,6 +28,8 @@ class Object {
 
         // stores result both in return value (if intersect) & isect (intersect data).
         virtual bool intersect(const Ray& ri, Interval t_interval, Intersection& isect) const = 0; 
+
+        virtual AABB get_AABB() const = 0;
 };
 
 #endif

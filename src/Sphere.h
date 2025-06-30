@@ -6,13 +6,23 @@
 class Sphere : public Object {
     public:
         // static sphere
-        Sphere(const Point3d &static_center, double radius, shared_ptr<Material> m) 
-            : center(static_center, Vector3d(0,0,0)), radius(std::fmax(0,radius)), m(m) {}
+        Sphere(const Point3d &static_center, double radius, shared_ptr<Material> m)
+          : center(static_center, Vector3d(0,0,0)), radius(std::fmax(0,radius)), m(m) 
+        {
+            auto rVec = Vector3d(radius, radius, radius);
+            aabb = AABB(static_center - rVec, static_center + rVec);
+        }
 
         // moving sphere
         Sphere(const Point3d &center1, const Point3d &center2, double radius,
-               shared_ptr<Material> m) 
-            : center(center1, center2 - center1), radius(std::fmax(0,radius)), m(m) {}
+               shared_ptr<Material> m)
+          : center(center1, center2 - center1), radius(std::fmax(0,radius)), m(m) 
+        {
+            auto rVec = Vector3d(radius, radius, radius);
+            AABB aabb1 = AABB(center1 - rVec, center1 + rVec);
+            AABB aabb2 = AABB(center2 - rVec, center2 + rVec);
+            aabb = AABB(aabb1, aabb2);
+        }
 
         bool intersect(const Ray &ri, Interval t_interval, Intersection &isect) const override {
             Point3d current_center = center.at(ri.time());
@@ -43,10 +53,14 @@ class Sphere : public Object {
 
             return true;
         }
+
+        AABB get_AABB() { return aabb; }
+    
     private:
         Ray center; // allows center to move from start (t = 0) to end (t = 1).
         double radius;
         shared_ptr<Material> m;
+        AABB aabb;
 };
 
 #endif

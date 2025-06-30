@@ -1,6 +1,7 @@
 #ifndef OBJECT_LIST_H
 #define OBJECT_LIST_H
 
+#include "AABB.h"
 #include "Object.h"
 
 #include <vector>
@@ -23,7 +24,7 @@ class Scene : public Object {
 
         Scene(int image_w, double aspect_ratio) : image_w(image_w), aspect_ratio(aspect_ratio) {}
 
-        void initialize() {
+        void initialize_camera() {
 
             image_h = int(image_w / aspect_ratio);
             image_h = (image_h < 1) ? 1 : image_h;
@@ -77,7 +78,10 @@ class Scene : public Object {
 
         void clear() { objects.clear(); }
 
-        void add(shared_ptr<Object> object) { objects.push_back(object); }
+        void add(shared_ptr<Object> object) { 
+            objects.push_back(object); 
+            aabb = AABB(aabb, object->get_AABB());
+        }
 
         bool intersect(const Ray &r, Interval t_interval, Intersection& isect) const override {
             Intersection temp_isect;
@@ -95,7 +99,11 @@ class Scene : public Object {
             return happened;
         }
 
+        AABB get_AABB() { return aabb; }
+
     private:
+        AABB aabb;
+
         Vector3d   pixel_delta_u;   // offset to pixel to the right
         Vector3d   pixel_delta_v;   // offset to pixel below
         Point3d    pixel00_loc;     // location of pixel 0, 0

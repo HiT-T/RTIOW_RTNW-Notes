@@ -8,6 +8,12 @@ class Interval {
         Interval() : min(+infinity), max(-infinity) {}
         Interval(double min, double max) : min(min), max(max) {}
 
+        // construct union of two intervals.
+        Interval(const Interval &a, const Interval &b) {
+            min = std::min(a.min, b.min);
+            max = std::max(a.max, b.max);
+        }
+
         double size() const { return max - min; }
 
         double contains(double t) { return min <= t && t <= max; }

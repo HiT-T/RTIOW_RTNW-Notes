@@ -12,7 +12,7 @@ class Renderer {
 
         void render(Scene &scene) {
             
-            scene.initialize();
+            scene.initialize_camera();
 
             // calculate each pixel's RGB color value and store into image.
             
