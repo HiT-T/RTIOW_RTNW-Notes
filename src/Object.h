@@ -10,7 +10,8 @@ class Intersection {
     public:
         Point3d p;
         Vector3d normal;
-        shared_ptr<Material> m;
+        shared_ptr<Material> m; // material of hitted object.
+        double tex_u, tex_v; // texture (u,v) coordinate of hitted object at p.
         double distance; // which is t (t>=0).
         bool happend_outside; // if ray-object intersection happens at object's outer surface.
 

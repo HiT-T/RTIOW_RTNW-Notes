@@ -2,7 +2,7 @@
 #define RENDERER_H
 
 #include "Object.h"
-// #include "Material.h"
+#include "Material.h"
 
 class Renderer {
     public:
