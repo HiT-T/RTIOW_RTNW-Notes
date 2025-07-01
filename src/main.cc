@@ -1,10 +1,11 @@
 #include "global.h"
 
-#include "BVH.h"
 #include "Object.h"
-#include "Scene.h"
-#include "Material.h"
 #include "Sphere.h"
+#include "BVH.h"
+#include "Scene.h"
+#include "Texture.h"
+#include "Material.h"
 #include "Renderer.h"
 
 int main() {
@@ -13,8 +14,8 @@ int main() {
     Scene scene(400, 16.0 / 9.0);
 
     // define materials.
-    auto ground_material = make_shared<Diffuse>(Color(0.5, 0.5, 0.5));
-    scene.add(make_shared<Sphere>(Point3d(0,-1000,0), 1000, ground_material));
+    auto checker_texture = make_shared<CheckerTexture>(0.32, Color(.2, .3, .1), Color(.9, .9, .9));
+    scene.add(make_shared<Sphere>(Point3d(0,-1000,0), 1000, make_shared<Diffuse>(checker_texture)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {

@@ -2,6 +2,7 @@
 #define MATERIAL_H
 
 #include "Object.h"
+#include "Texture.h"
 
 class Material {
     public:
@@ -15,7 +16,9 @@ class Material {
 
 class Diffuse : public Material {
     public:
-        Diffuse(const Color &albedo) : albedo(albedo) {}
+        Diffuse(const Color &albedo) : tex(make_shared<SolidColorTexture>(albedo)) {}
+
+        Diffuse(shared_ptr<Texture> tex) : tex(tex) {}
 
         bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
         const override {
@@ -26,12 +29,12 @@ class Diffuse : public Material {
                 wo = normalize(wo);
             }
             ro = Ray(isect.p, wo, ri.time());
-            attenuation = albedo;
+            attenuation = tex->get_texColor(isect.tex_u, isect.tex_v, isect.p);
             return true;
         }
     
     private:
-        Color albedo;  // here albedo == Kd == pi * f_r
+        shared_ptr<Texture> tex;  
 };
 
 inline Vector3d reflect(const Vector3d &wi, const Vector3d &N) {
