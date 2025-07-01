@@ -22,13 +22,15 @@ class AABB {
             z = Interval(aabb1.z, aabb2.z);
         }
 
+        Vector3d Centriod() { return Vector3d((x.max + x.min) / 2, (y.max + y.min) / 2, (z.max + z.min) / 2); }
+
         const Interval& axis_interval(int i) const {
             if (i == 0) return x;
             if (i == 1) return y;
             return z;
         }
 
-        bool intersectP(const Ray &ri, Interval t_interval) {
+        bool intersectP(const Ray &ri, Interval t_interval) const {
             const Point3d &ray_orig = ri.origin();
             const Vector3d ray_dir = ri.direction();
             const Vector3d invDir = Vector3d(1/ray_dir[0], 1/ray_dir[1], 1/ray_dir[2]);
@@ -51,6 +53,19 @@ class AABB {
             }
             return true;
         }
+
+        // return the index of axis with maximum spatial span.
+        int longest_axis() {
+            if (x.size() > y.size()) 
+                return (x.size() > z.size()) ? 0 : 2;
+            else 
+                return (y.size() > z.size()) ? 1 : 2;
+        }
+
+        static const AABB empty, universe;
 };
+
+const AABB AABB::empty = AABB(Interval::empty, Interval::empty, Interval::empty);
+const AABB AABB::universe = AABB(Interval::universe, Interval::universe, Interval::universe);
 
 #endif

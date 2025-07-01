@@ -54,8 +54,8 @@ int main() {
     auto material3 = make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0);
     scene.add(make_shared<Sphere>(Point3d(4, 1, 0), 1.0, material3));
 
-    // build BVH.
-    scene = Scene(make_shared<BVHNode>(scene));
+    // build BVH for added objects.
+    scene.buildBVH();
 
     // define camera params.
     scene.vfov     = 20;

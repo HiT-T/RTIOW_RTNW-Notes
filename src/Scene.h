@@ -2,6 +2,7 @@
 #define OBJECT_LIST_H
 
 #include "AABB.h"
+#include "BVH.h"
 #include "Object.h"
 
 #include <vector>
@@ -75,31 +76,24 @@ class Scene : public Object {
 
         // shared_ptr ? 1. automatically frees memory; 2. allows multiple references.
         std::vector<shared_ptr<Object>> objects;
+        shared_ptr<BVHNode> bvh;
 
         void clear() { objects.clear(); }
+
+        AABB get_AABB() const override { return aabb; }
 
         void add(shared_ptr<Object> object) { 
             objects.push_back(object); 
             aabb = AABB(aabb, object->get_AABB());
         }
 
-        bool intersect(const Ray &r, Interval t_interval, Intersection& isect) const override {
-            Intersection temp_isect;
-            bool happened = false;
-            double closest = t_interval.max;
-
-            for (const auto &object : objects) {
-                if (object->intersect(r, Interval(t_interval.min, closest), temp_isect)) {
-                    happened = true;
-                    closest = temp_isect.distance;
-                    isect = temp_isect;
-                }
-            }
-
-            return happened;
+        void buildBVH() {
+            this->bvh = make_shared<BVHNode>(objects);
         }
 
-        AABB get_AABB() const override { return aabb; }
+        bool intersect(const Ray &ri, Interval t_interval, Intersection& isect) const override {
+            return this->bvh->intersect(ri, t_interval, isect);
+        }
     
     private:
         AABB aabb;
