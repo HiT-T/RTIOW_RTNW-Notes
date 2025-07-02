@@ -36,7 +36,7 @@ class BVHNode : public Object {
             }
         }
 
-        bool intersect(const Ray& ri, Interval t_interval, Intersection& isect) const override {
+        bool intersect(const Ray &ri, Interval t_interval, Intersection &isect) const override {
             if (!aabb.intersectP(ri, t_interval)) return false;
 
             // isect stores the closest intersection between ray & {left, right}.

@@ -29,7 +29,7 @@ class AABB {
             if (i == 1) return y;
             return z;
         }
-
+        
         bool intersectP(const Ray &ri, Interval t_interval) const {
             const Point3d &ray_orig = ri.origin();
             const Vector3d ray_dir = ri.direction();
@@ -38,6 +38,7 @@ class AABB {
             for (int i = 0; i < 3; i++) {
                 const Interval &axis = axis_interval(i);
 
+                // 我怀疑就是这里的数值问题
                 double t0 = (axis.min - ray_orig[i]) * invDir[i];
                 double t1 = (axis.max - ray_orig[i]) * invDir[i];
 

@@ -53,7 +53,7 @@ int main() {
     scene.add(make_shared<Sphere>(Point3d(-4, 1, 0), 1.0, material2));
 
     auto material3 = make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0);
-    scene.add(make_shared<Sphere>(Point3d(4, 1, 0), 1.0, material3));
+    scene.add(make_shared<Sphere>(Point3d(4, 1, 0), 1.0, make_shared<Diffuse>(checker_texture)));
 
     // build BVH for added objects.
     scene.buildBVH();

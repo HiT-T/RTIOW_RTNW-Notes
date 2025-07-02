@@ -33,7 +33,7 @@ class CheckerTexture : public Texture {
 
         Color get_texColor(double u, double v, const Vector3d &p) const override {
             auto x_int = int(std::floor(invScale * p.x()));
-            auto y_int = 0; // problem: y doesn't affect anything.
+            auto y_int = int(std::floor(invScale * p.y()));
             auto z_int = int(std::floor(invScale * p.z()));
 
             bool isOdd = (x_int + y_int + z_int) % 2 == 1;
