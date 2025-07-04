@@ -16,7 +16,7 @@ class Sphere : public Object {
         // moving sphere
         Sphere(const Point3d &center1, const Point3d &center2, double radius,
                shared_ptr<Material> m)
-          : center(center1, center2 - center1), radius(std::fmax(0,radius)), m(m) 
+          : center(center1, center2 - center1), radius(std::fmax(0,radius)), m(m)
         {
             auto rVec = Vector3d(radius, radius, radius);
             AABB aabb1 = AABB(center1 - rVec, center1 + rVec);
@@ -49,6 +49,7 @@ class Sphere : public Object {
             isect.distance = t;
             auto outward_normal = (isect.p - current_center) / radius;
             isect.set_normal(ri, outward_normal);
+            get_tex_uv(outward_normal, isect.tex_u, isect.tex_v);
             isect.m = m;
 
             return true;
@@ -61,6 +62,22 @@ class Sphere : public Object {
         double radius;
         shared_ptr<Material> m;
         AABB aabb;
+
+        static void get_tex_uv(const Point3d &p, double u, double v) {
+            // p: a given point on the unit sphere centered at (0, 0, 0).
+            // u: returned value [0,1] of angle around the Y axis from X=-1.
+            // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+            //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+            //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+            //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+
+
+            double theta = acos(-p.y());
+            double phi = atan2(-p.z(), p.x()) + pi;
+
+            u = phi / 2*pi;
+            v = theta / pi;
+        }
 };
 
 #endif

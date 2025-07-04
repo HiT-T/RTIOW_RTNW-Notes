@@ -8,8 +8,8 @@
 #include "Material.h"
 #include "Renderer.h"
 
-int main() {
-
+void bouncing_spheres() {
+    
     // create the scene with image size params.
     Scene scene(400, 16.0 / 9.0);
 
@@ -53,7 +53,7 @@ int main() {
     scene.add(make_shared<Sphere>(Point3d(-4, 1, 0), 1.0, material2));
 
     auto material3 = make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0);
-    scene.add(make_shared<Sphere>(Point3d(4, 1, 0), 1.0, make_shared<Diffuse>(checker_texture)));
+    scene.add(make_shared<Sphere>(Point3d(4, 1, 0), 1.0, material3));
 
     // build BVH for added objects.
     scene.buildBVH();
@@ -80,6 +80,43 @@ int main() {
     std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << "h";
     std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() % 60 << "min";
     std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
+}
 
-    return 0;
+void checkered_spheres() {
+
+    Scene scene(400, 16.0 / 9.0);
+
+    auto checker_texture = make_shared<CheckerTexture>(0.32, Color(.2, .3, .1), Color(.9, .9, .9));
+
+    scene.add(make_shared<Sphere>(Point3d(0,-10, 0), 10, make_shared<Diffuse>(checker_texture)));
+    scene.add(make_shared<Sphere>(Point3d(0, 10, 0), 10, make_shared<Diffuse>(checker_texture)));
+
+    scene.buildBVH();
+
+    scene.vfov      = 20;
+    scene.eye_pos   = Point3d(13,2,3);
+    scene.gaze_pos  = Point3d(0,0,0);
+    scene.up_dir    = Vector3d(0,1,0);
+
+    scene.defocus_angle = 0;
+
+    Renderer r;
+    r.spp = 256;
+
+    auto start = std::chrono::system_clock::now();
+    r.render(scene);
+    auto stop = std::chrono::system_clock::now();
+
+    std::cout << "\nDone!\n";
+    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << "h";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() % 60 << "min";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
+}
+
+int main() {
+    int scene_index = 1;
+    switch(scene_index) {
+        case 0: bouncing_spheres(); break;
+        case 1: checkered_spheres(); break;
+    }
 }

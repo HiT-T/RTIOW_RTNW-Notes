@@ -6,13 +6,17 @@ class AABB {
         Interval x, y, z;
 
         AABB() {}
-        AABB(const Interval &x, const Interval &y, const Interval &z) : x(x), y(y), z(z) {}
+        AABB(const Interval &x, const Interval &y, const Interval &z) : x(x), y(y), z(z) {
+            pad_to_minimum();
+        }
 
         // given two extremas, construct the AABB.
         AABB(const Point3d &p1, const Point3d &p2) {
             x = (p1[0] < p2[0]) ? Interval(p1[0], p2[0]) : Interval(p2[0], p1[0]);
             y = (p1[1] < p2[1]) ? Interval(p1[1], p2[1]) : Interval(p2[1], p1[1]);
             z = (p1[2] < p2[2]) ? Interval(p1[2], p2[2]) : Interval(p2[2], p1[2]);
+
+            pad_to_minimum();
         }
 
         // construct the union of two AABBs.
@@ -29,7 +33,7 @@ class AABB {
             if (i == 1) return y;
             return z;
         }
-        
+
         bool intersectP(const Ray &ri, Interval t_interval) const {
             const Point3d &ray_orig = ri.origin();
             const Vector3d ray_dir = ri.direction();
@@ -38,7 +42,6 @@ class AABB {
             for (int i = 0; i < 3; i++) {
                 const Interval &axis = axis_interval(i);
 
-                // 我怀疑就是这里的数值问题
                 double t0 = (axis.min - ray_orig[i]) * invDir[i];
                 double t1 = (axis.max - ray_orig[i]) * invDir[i];
 
@@ -64,6 +67,14 @@ class AABB {
         }
 
         static const AABB empty, universe;
+
+    private:
+        void pad_to_minimum() {
+            double delta = 1e-4;
+            x = x.expand(delta);
+            y = y.expand(delta);
+            z = z.expand(delta);
+        }
 };
 
 const AABB AABB::empty = AABB(Interval::empty, Interval::empty, Interval::empty);

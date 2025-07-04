@@ -36,9 +36,9 @@ class CheckerTexture : public Texture {
             auto y_int = int(std::floor(invScale * p.y()));
             auto z_int = int(std::floor(invScale * p.z()));
 
-            bool isOdd = (x_int + y_int + z_int) % 2 == 1;
+            bool isEven = (x_int + y_int + z_int) % 2 == 0;
             
-            return isOdd ? odd->get_texColor(u, v, p) : even->get_texColor(u, v, p);
+            return isEven ? even->get_texColor(u, v, p) : odd->get_texColor(u, v, p);
         }
 
     private:

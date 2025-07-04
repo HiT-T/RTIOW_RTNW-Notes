@@ -21,6 +21,11 @@ class Interval {
         double surrounds(double t) { return min < t && t < max; }
 
         double clamp(double x) const { return std::max(min, std::min(max, x)); }
+
+        Interval expand(double delta) const {
+            auto padding = delta / 2;
+            return Interval(min - padding, max + padding);
+        }
  
         static const Interval empty, universe;
 };
