@@ -63,7 +63,7 @@ class Sphere : public Object {
         shared_ptr<Material> m;
         AABB aabb;
 
-        static void get_tex_uv(const Point3d &p, double u, double v) {
+        static void get_tex_uv(const Point3d &p, double &u, double &v) {
             // p: a given point on the unit sphere centered at (0, 0, 0).
             // u: returned value [0,1] of angle around the Y axis from X=-1.
             // v: returned value [0,1] of angle from Y=-1 to Y=+1.
@@ -71,9 +71,9 @@ class Sphere : public Object {
             //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
             //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
 
-
-            double theta = acos(-p.y());
-            double phi = atan2(-p.z(), p.x()) + pi;
+            // 究竟是哪里的问题？？？
+            double theta = std::acos(-p.y());
+            double phi = std::atan2(-p.z(), p.x()) + pi;
 
             u = phi / 2*pi;
             v = theta / pi;

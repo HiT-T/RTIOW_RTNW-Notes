@@ -1,6 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "Image.h"
+
 class Texture {
     public:
         virtual ~Texture() = default;
@@ -45,6 +47,31 @@ class CheckerTexture : public Texture {
         double invScale;
         shared_ptr<Texture> odd;
         shared_ptr<Texture> even;      
+};
+
+class ImageTexture : public Texture {
+    public:
+        ImageTexture(const char* filename) : image(filename) {}
+
+        Color get_texColor(double u, double v, const Point3d& p) const override {
+
+            // if we have no texture data, then return solid cyan as a debugging aid.
+            if (image.height() <= 0) return Color(0,1,1);
+
+            // clamp input texture coordinates to [0,1] x [1,0].
+            u = Interval(0,1).clamp(u);
+            v = 1.0 - Interval(0,1).clamp(v);  // flip V to image coordinates.
+
+            auto i = int(u * image.width());
+            auto j = int(v * image.height());
+            auto pixel = image.get_pixel_data(i,j);
+
+            auto color_scale = 1.0 / 255.0;
+            return Color(color_scale*pixel[0], color_scale*pixel[1], color_scale*pixel[2]);
+        }
+
+    private:
+        Image image;
 };
 
 #endif
