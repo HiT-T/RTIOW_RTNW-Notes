@@ -33,14 +33,14 @@ inline double sample_double() {
 inline double sample_double(double min, double max) { return min + (max-min) * sample_double(); }
 
 // returns a random integer in [min,max].
-inline double sample_int(int min, int max) { return int(sample_double(min, max+1)); }
+inline int sample_int(int min, int max) { return int(sample_double(min, max+1)); }
 
 inline void UpdateProgress(double progress)
 {
     int barWidth = 70;
 
     std::clog << "[";
-    int pos = barWidth * progress;
+    auto pos = int(barWidth * progress);
     for (int i = 0; i < barWidth; ++i) {
         if (i < pos) std::clog << "=";
         else if (i == pos) std::clog << ">";

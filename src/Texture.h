@@ -1,6 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "Perlin.h"
 #include "Image.h"
 
 class Texture {
@@ -72,6 +73,17 @@ class ImageTexture : public Texture {
 
     private:
         Image image;
+};
+
+class NoiseTexture : public Texture {
+    public:
+        NoiseTexture() {}
+
+        Color get_texColor(double u, double v, const Point3d& p) const override { 
+            return Color(1,1,1) * perlin.noise(p);
+        }
+    private:
+        Perlin perlin;
 };
 
 #endif

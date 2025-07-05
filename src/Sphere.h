@@ -71,11 +71,10 @@ class Sphere : public Object {
             //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
             //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
 
-            // 究竟是哪里的问题？？？
             double theta = std::acos(-p.y());
             double phi = std::atan2(-p.z(), p.x()) + pi;
 
-            u = phi / 2*pi;
+            u = phi / (2*pi);
             v = theta / pi;
         }
 };
