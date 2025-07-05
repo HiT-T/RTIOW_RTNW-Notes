@@ -77,13 +77,14 @@ class ImageTexture : public Texture {
 
 class NoiseTexture : public Texture {
     public:
-        NoiseTexture() {}
+        NoiseTexture(double scale) : scale(scale) {}
 
         Color get_texColor(double u, double v, const Point3d& p) const override { 
-            return Color(1,1,1) * perlin.noise(p);
+            return Color(1,1,1) * perlin.noise(scale * p);
         }
     private:
         Perlin perlin;
+        double scale;
 };
 
 #endif

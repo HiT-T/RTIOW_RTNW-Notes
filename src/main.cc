@@ -146,7 +146,7 @@ void earth() {
 void perlin_spheres() {
     Scene scene(400, 16.0 / 9.0);
 
-    auto perlin_texture = make_shared<NoiseTexture>();
+    auto perlin_texture = make_shared<NoiseTexture>(4);
     scene.add(make_shared<Sphere>(Point3d(0,-1000,0), 1000, make_shared<Diffuse>(perlin_texture)));
     scene.add(make_shared<Sphere>(Point3d(0,2,0), 2, make_shared<Diffuse>(perlin_texture)));
 
