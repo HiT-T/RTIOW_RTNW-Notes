@@ -80,7 +80,7 @@ class NoiseTexture : public Texture {
         NoiseTexture(double scale) : scale(scale) {}
 
         Color get_texColor(double u, double v, const Point3d& p) const override { 
-            return Color(1,1,1) * perlin.noise(scale * p);
+            return Color(.5,.5,.5) * (1 + std::sin(scale * p.z() + 10 * perlin.turb(p, 7)));
         }
     private:
         Perlin perlin;

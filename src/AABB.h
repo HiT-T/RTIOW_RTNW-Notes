@@ -71,9 +71,9 @@ class AABB {
     private:
         void pad_to_minimum() {
             double delta = 1e-4;
-            x = x.expand(delta);
-            y = y.expand(delta);
-            z = z.expand(delta);
+            if (x.size() < delta) x = x.expand(delta);
+            if (y.size() < delta) y = y.expand(delta);
+            if (z.size() < delta) z = z.expand(delta);
         }
 };
 
