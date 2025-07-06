@@ -2,6 +2,7 @@
 
 #include "Object.h"
 #include "Sphere.h"
+#include "quad.h"
 #include "BVH.h"
 #include "Scene.h"
 #include "Texture.h"
@@ -172,12 +173,52 @@ void perlin_spheres() {
     std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
 }
 
+void quads() {
+    Scene scene(400, 1.0);
+
+    // Materials
+    auto left_red     = make_shared<Diffuse>(Color(1.0, 0.2, 0.2));
+    auto back_green   = make_shared<Diffuse>(Color(0.2, 1.0, 0.2));
+    auto right_blue   = make_shared<Diffuse>(Color(0.2, 0.2, 1.0));
+    auto upper_orange = make_shared<Diffuse>(Color(1.0, 0.5, 0.0));
+    auto lower_teal   = make_shared<Diffuse>(Color(0.2, 0.8, 0.8));
+
+    // Quads
+    scene.add(make_shared<Quad>(Point3d(-3,-2, 5), Vector3d(0, 0,-4), Vector3d(0, 4, 0), left_red));
+    scene.add(make_shared<Quad>(Point3d(-2,-2, 0), Vector3d(4, 0, 0), Vector3d(0, 4, 0), back_green));
+    scene.add(make_shared<Quad>(Point3d( 3,-2, 1), Vector3d(0, 0, 4), Vector3d(0, 4, 0), right_blue));
+    scene.add(make_shared<Quad>(Point3d(-2, 3, 1), Vector3d(4, 0, 0), Vector3d(0, 0, 4), upper_orange));
+    scene.add(make_shared<Quad>(Point3d(-2,-3, 5), Vector3d(4, 0, 0), Vector3d(0, 0,-4), lower_teal));
+
+    scene.buildBVH();
+
+    scene.vfov      = 80;
+    scene.eye_pos   = Point3d(0,0,9);
+    scene.gaze_pos  = Point3d(0,0,0);
+    scene.up_dir    = Vector3d(0,1,0);
+
+    scene.defocus_angle = 0;
+
+    Renderer r;
+    r.spp = 100;
+
+    auto start = std::chrono::system_clock::now();
+    r.render(scene);
+    auto stop = std::chrono::system_clock::now();
+
+    std::cout << "\nDone!\n";
+    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << "h";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() % 60 << "min";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
+}
+
 int main() {
-    int scene_index = 3;
+    int scene_index = 4;
     switch(scene_index) {
         case 0: bouncing_spheres(); break;
         case 1: checkered_spheres(); break;
         case 2: earth(); break;
         case 3: perlin_spheres(); break;
+        case 4: quads(); break;
     }
 }
