@@ -32,4 +32,12 @@ class Interval {
 const Interval Interval::empty = Interval(+infinity, -infinity);
 const Interval Interval::universe = Interval(-infinity, +infinity);
 
+Interval operator+(const Interval &intv, double offset) {
+    return Interval(intv.min + offset, intv.max + offset);
+}
+
+Interval operator+(double offset, const Interval &intv) {
+    return intv + offset;
+}
+
 #endif

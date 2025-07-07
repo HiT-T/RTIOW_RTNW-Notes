@@ -8,10 +8,10 @@ class Material {
     public:
         virtual ~Material() = default;
 
+        virtual Color emit(double u, double v, const Vector3d &p) const { return Color(); }
+
         virtual bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
-        const {
-            return false;
-        }
+        const { return false; }
 };
 
 class Diffuse : public Material {
@@ -106,6 +106,19 @@ class Dielectric : public Material {
             r0 *= r0;
             return r0 + (1-r0) * std::pow((1 - cos_i), 5);
         }
+};
+
+class DiffuseLight : public Material {
+    public:
+        DiffuseLight(shared_ptr<Texture> tex) : tex(tex) {}
+        DiffuseLight(const Color &emit) : tex(make_shared<SolidColorTexture>(emit)) {} 
+
+        Color emit(double u, double v, const Vector3d &p) const override {
+            return tex->get_texColor(u, v, p);
+        }
+
+    private:
+        shared_ptr<Texture> tex;
 };
 
 #endif

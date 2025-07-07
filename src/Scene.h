@@ -14,6 +14,7 @@ class Scene : public Object {
         int    image_w      = 100, image_h;
         double aspect_ratio = 1.0;
         double viewport_w   = 0.0, viewport_h = 0.0;
+        Color bgColor; // background color.
 
         double   vfov     = 90;               // define vertical field of view.
         Point3d  eye_pos  = Point3d(0,0,0);   // camera's position
@@ -23,7 +24,9 @@ class Scene : public Object {
         double defocus_angle = 0;  // angle of the cone with apex at viewport center and base (defocus disk) at eye_pos.
         double focal_dist = 10;    // distance from camera center & defocus disk to focal plane.
 
-        Scene(int image_w, double aspect_ratio) : image_w(image_w), aspect_ratio(aspect_ratio) {}
+        Scene() {}
+        Scene(int image_w, double aspect_ratio, Color bgColor)
+          : image_w(image_w), aspect_ratio(aspect_ratio), bgColor(bgColor) {}
 
         void initialize_camera() {
 

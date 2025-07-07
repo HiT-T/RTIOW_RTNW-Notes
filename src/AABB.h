@@ -80,4 +80,12 @@ class AABB {
 const AABB AABB::empty = AABB(Interval::empty, Interval::empty, Interval::empty);
 const AABB AABB::universe = AABB(Interval::universe, Interval::universe, Interval::universe);
 
+AABB operator+(const AABB &aabb, const Vector3d &offset) {
+    return AABB(aabb.x + offset.x(), aabb.y + offset.y(), aabb.z + offset.z());
+}
+
+AABB operator+(const Vector3d &offset, const AABB &aabb) {
+    return aabb + offset;
+}
+
 #endif

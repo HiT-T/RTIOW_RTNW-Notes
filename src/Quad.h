@@ -2,6 +2,7 @@
 #define QUAD_H
 
 #include "Object.h"
+#include "Scene.h"
 
 class Quad : public Object {
     public:
@@ -66,5 +67,29 @@ class Quad : public Object {
             return true;
         }
 };
+
+// returns the 3D box (6 sides) that contains the two opposite vertices p1 & p2.
+inline shared_ptr<Scene> box(const Point3d &p1, const Point3d &p2, shared_ptr<Material> m) {
+    auto x = p1.x() < p2.x() ? Interval(p1.x(), p2.x()) : Interval(p2.x(), p1.x());
+    auto y = p1.y() < p2.y() ? Interval(p1.y(), p2.y()) : Interval(p2.y(), p1.y());
+    auto z = p1.z() < p2.z() ? Interval(p1.z(), p2.z()) : Interval(p2.z(), p1.z());
+
+    auto dx = Vector3d(x.max - x.min, 0, 0);
+    auto dy = Vector3d(0, y.max - y.min, 0);
+    auto dz = Vector3d(0, 0, z.max - z.min);
+
+    auto sides = make_shared<Scene>();
+
+    sides->add(make_shared<Quad>(Point3d(x.min, y.min, z.max),  dx,  dy, m)); // front
+    sides->add(make_shared<Quad>(Point3d(x.max, y.min, z.max), -dz,  dy, m)); // right
+    sides->add(make_shared<Quad>(Point3d(x.max, y.min, z.min), -dx,  dy, m)); // back
+    sides->add(make_shared<Quad>(Point3d(x.min, y.min, z.min),  dz,  dy, m)); // left
+    sides->add(make_shared<Quad>(Point3d(x.min, y.max, z.max),  dx, -dz, m)); // top
+    sides->add(make_shared<Quad>(Point3d(x.min, y.min, z.min),  dx,  dz, m)); // bottom
+
+    sides->buildBVH();
+
+    return sides;
+}
 
 #endif

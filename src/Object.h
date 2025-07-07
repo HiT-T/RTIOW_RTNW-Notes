@@ -33,4 +33,31 @@ class Object {
         virtual AABB get_AABB() const = 0;
 };
 
+class Translate : public Object {
+    public:
+        Translate(shared_ptr<Object> obj, Vector3d offset)
+          : obj(obj), offset(offset) 
+        {
+            aabb = obj->get_AABB() + offset;
+        }
+
+        bool intersect(const Ray& ri, Interval t_interval, Intersection& isect) {
+            Ray offset_ri(ri.origin() - offset, ri.direction(), ri.time());
+
+            if(!obj->intersect(offset_ri, t_interval, isect))
+                return false;
+            
+            isect.p += offset;
+
+            return true;
+        }
+
+        AABB get_AABB() { return aabb; }
+
+    private:
+        shared_ptr<Object> obj;
+        Vector3d offset;
+        AABB aabb;
+};
+
 #endif
