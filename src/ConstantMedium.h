@@ -28,7 +28,7 @@ class ConstantMedium : public Object {
                 return false;
 
             if (isect1.distance < t_interval.min) isect1.distance = t_interval.min;
-            if (isect2.distance > t_interval.max) isect1.distance = t_interval.max;
+            if (isect2.distance > t_interval.max) isect2.distance = t_interval.max;
 
             if (isect1.distance >= isect2.distance)
                 return false;
@@ -45,7 +45,7 @@ class ConstantMedium : public Object {
             isect.distance = isect1.distance + scatter_distance;
             isect.p = ri.at(isect.distance);
 
-            isect.normal = Vector3d();    // these two are arbitrarily set because rays are randomly & uniformly
+            isect.normal = Vector3d(1,0,0);    // these two are arbitrarily set because rays are randomly & uniformly
             isect.happend_outside = true; //  scattered in any directions for isotropic material.
             isect.m = phase_function;
 

@@ -226,9 +226,9 @@ void simple_light() {
     scene.add(make_shared<Sphere>(Point3d(0,-1000,0), 1000, make_shared<Diffuse>(perlin_texture)));
     scene.add(make_shared<Sphere>(Point3d(0,2,0), 2, make_shared<Diffuse>(perlin_texture)));
 
-    auto DiffuseLight = make_shared<DiffuseLight>(Color(4,4,4));
-    scene.add(make_shared<Sphere>(Point3d(0,7,0), 2, DiffuseLight));
-    scene.add(make_shared<Quad>(Point3d(3,1,-2), Vector3d(2,0,0), Vector3d(0,2,0), DiffuseLight));
+    auto diffuse_light = make_shared<DiffuseLight>(Color(4,4,4));
+    scene.add(make_shared<Sphere>(Point3d(0,7,0), 2, diffuse_light));
+    scene.add(make_shared<Quad>(Point3d(3,1,-2), Vector3d(2,0,0), Vector3d(0,2,0), diffuse_light));
 
     scene.buildBVH();
 
@@ -348,6 +348,8 @@ void cornell_smoke() {
 }
 
 void RTNW(int image_width, int spp) {
+
+    // test quad & box.
     Scene boxes1;
     auto ground = make_shared<Diffuse>(Color(0.48, 0.83, 0.53));
 
@@ -366,50 +368,66 @@ void RTNW(int image_width, int spp) {
         }
     }
 
+    boxes1.buildBVH();
+
     Scene scene(image_width, 1.0, Color());
 
+    scene.add(make_shared<Scene>(boxes1));
+
+    // test light.
     auto light = make_shared<DiffuseLight>(Color(7, 7, 7));
-    scene.add(make_shared<Quad>(Point3d(123,554,147), vec3(300,0,0), vec3(0,0,265), light));
+    scene.add(make_shared<Quad>(Point3d(123,554,147), Vector3d(300,0,0), Vector3d(0,0,265), light));
 
+    // test motion blur.
     auto center1 = Point3d(400, 400, 200);
-    auto center2 = center1 + vec3(30,0,0);
+    auto center2 = center1 + Vector3d(30,0,0);
     auto sphere_material = make_shared<Diffuse>(Color(0.7, 0.3, 0.1));
-    scene.add(make_shared<sphere>(center1, center2, 50, sphere_material));
+    scene.add(make_shared<Sphere>(center1, center2, 50, sphere_material));
 
-    scene.add(make_shared<sphere>(Point3d(260, 150, 45), 50, make_shared<dielectric>(1.5)));
-    scene.add(make_shared<sphere>(
-        Point3d(0, 150, 145), 50, make_shared<metal>(Color(0.8, 0.8, 0.9), 1.0)
+    // test dielectric & metal,
+    scene.add(make_shared<Sphere>(Point3d(260, 150, 45), 50, make_shared<Dielectric>(1.5)));
+    scene.add(make_shared<Sphere>(
+        Point3d(0, 150, 145), 50, make_shared<Metal>(Color(0.8, 0.8, 0.9), 1.0)
     ));
 
-    auto boundary = make_shared<sphere>(Point3d(360,150,145), 70, make_shared<dielectric>(1.5));
+    // test volume.
+    auto boundary = make_shared<Sphere>(Point3d(360,150,145), 70, make_shared<Dielectric>(1.5));
     scene.add(boundary);
-    scene.add(make_shared<constant_medium>(boundary, 0.2, Color(0.2, 0.4, 0.9)));
-    boundary = make_shared<sphere>(Point3d(0,0,0), 5000, make_shared<dielectric>(1.5));
-    scene.add(make_shared<constant_medium>(boundary, .0001, Color(1,1,1)));
+    scene.add(make_shared<ConstantMedium>(boundary, 0.2, Color(0.2, 0.4, 0.9)));
+    
+    boundary = make_shared<Sphere>(Point3d(0,0,0), 5000, make_shared<Dielectric>(1.5));
+    scene.add(make_shared<ConstantMedium>(boundary, .0001, Color(1,1,1)));
 
-    auto emat = make_shared<Diffuse>(make_shared<image_texture>("earthmap.jpg"));
-    scene.add(make_shared<sphere>(Point3d(400,200,400), 100, emat));
-    auto pertext = make_shared<noise_texture>(0.2);
-    scene.add(make_shared<sphere>(Point3d(220,280,300), 80, make_shared<Diffuse>(pertext)));
+    // test image texture.
+    auto image_texture = make_shared<ImageTexture>("earthmap.jpg");
+    scene.add(make_shared<Sphere>(Point3d(400,200,400), 100, make_shared<Diffuse>(image_texture)));
 
+    // test perlin.
+    auto perlin_texture = make_shared<NoiseTexture>(0.2);
+    scene.add(make_shared<Sphere>(Point3d(220,280,300), 80, make_shared<Diffuse>(perlin_texture)));
+
+    // test diffuse.
     Scene boxes2;
     auto white = make_shared<Diffuse>(Color(.73, .73, .73));
     int ns = 1000;
     for (int j = 0; j < ns; j++) {
-        boxes2.add(make_shared<sphere>(Point3d::random(0,165), 10, white));
+        boxes2.add(make_shared<Sphere>(Point3d::sample(0,165), 10, white));
     }
 
-    scene.add(make_shared<translate>(
-        make_shared<rotate_y>(
-            make_shared<bvh_node>(boxes2), 15),
-            vec3(-100,270,395)
+    boxes2.buildBVH();
+
+    // test instance.
+    scene.add(make_shared<Translate>(
+        make_shared<RotateY>(
+            make_shared<Scene>(boxes2), 15),
+            Vector3d(-100,270,395)
         )
     );
 
     scene.buildBVH();
 
     scene.vfov      = 40;
-    scene.eye_pos   = Point3d(278, 278, -600);
+    scene.eye_pos   = Point3d(478, 278, -600);
     scene.gaze_pos  = Point3d(278, 278, 0);
     scene.up_dir    = Vector3d(0,1,0);
 
@@ -429,17 +447,17 @@ void RTNW(int image_width, int spp) {
 }
 
 int main() {
-    int scene_index = 7;
+    int scene_index = 9;
     switch(scene_index) {
-        case 0: bouncing_spheres(); break;
+        case 0: bouncing_spheres();  break;
         case 1: checkered_spheres(); break;
-        case 2: earth(); break;
-        case 3: perlin_spheres(); break;
-        case 4: Quads(); break;
-        case 5: simple_light(); break;
-        case 6: cornell_box(); break;
-        case 7: cornell_smoke(); break;
-        case 8: RTNW(800, 10000); break;
-        case 9: RTNW(400,   250); break;
+        case 2: earth();             break;
+        case 3: perlin_spheres();    break;
+        case 4: Quads();             break;
+        case 5: simple_light();      break;
+        case 6: cornell_box();       break;
+        case 7: cornell_smoke();     break;
+        case 8: RTNW(800, 10240);    break;
+        case 9: RTNW(400,   128);     break;
     }
 }
