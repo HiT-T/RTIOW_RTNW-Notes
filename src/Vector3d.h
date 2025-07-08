@@ -121,7 +121,7 @@ inline Vector3d normalize(const Vector3d &v) {
     return v / v.norm();
 }
 
-inline Vector3d sample_random_dir() {
+inline Vector3d sample_dir() {
     while (true) {
         auto p = Vector3d::sample(-1,1);
         auto p_norm = p.norm();
@@ -132,7 +132,7 @@ inline Vector3d sample_random_dir() {
 }
 
 inline Vector3d sample_outward_dir(const Vector3d &N) {
-    auto random_dir = sample_random_dir();
+    auto random_dir = sample_dir();
     if (dotProduct(random_dir, N) > 0.0) {
         return random_dir;
     } else {

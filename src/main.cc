@@ -1,12 +1,14 @@
 #include "global.h"
 
+
 #include "Object.h"
 #include "Sphere.h"
-#include "quad.h"
+#include "Quad.h"
+#include "ConstantMedium.h"
 #include "BVH.h"
-#include "Scene.h"
 #include "Texture.h"
 #include "Material.h"
+#include "Scene.h"
 #include "Renderer.h"
 
 Color sky_color = Color(0.70, 0.80, 1.00);
@@ -176,7 +178,7 @@ void perlin_spheres() {
     std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
 }
 
-void quads() {
+void Quads() {
 
     Scene scene(400, 16.0 / 9.0, sky_color);
 
@@ -224,9 +226,9 @@ void simple_light() {
     scene.add(make_shared<Sphere>(Point3d(0,-1000,0), 1000, make_shared<Diffuse>(perlin_texture)));
     scene.add(make_shared<Sphere>(Point3d(0,2,0), 2, make_shared<Diffuse>(perlin_texture)));
 
-    auto diffuse_light = make_shared<DiffuseLight>(Color(4,4,4));
-    scene.add(make_shared<Sphere>(Point3d(0,7,0), 2, diffuse_light));
-    scene.add(make_shared<Quad>(Point3d(3,1,-2), Vector3d(2,0,0), Vector3d(0,2,0), diffuse_light));
+    auto DiffuseLight = make_shared<DiffuseLight>(Color(4,4,4));
+    scene.add(make_shared<Sphere>(Point3d(0,7,0), 2, DiffuseLight));
+    scene.add(make_shared<Quad>(Point3d(3,1,-2), Vector3d(2,0,0), Vector3d(0,2,0), DiffuseLight));
 
     scene.buildBVH();
 
@@ -297,15 +299,147 @@ void cornell_box() {
     std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
 }
 
+void cornell_smoke() {
+    Scene scene(600, 1.0, Color());
+
+    auto red   = make_shared<Diffuse>(Color(.65, .05, .05));
+    auto white = make_shared<Diffuse>(Color(.73, .73, .73));
+    auto green = make_shared<Diffuse>(Color(.12, .45, .15));
+    auto light = make_shared<DiffuseLight>(Color(7, 7, 7));
+
+    scene.add(make_shared<Quad>(Point3d(555,0,0), Vector3d(0,555,0), Vector3d(0,0,555), green));
+    scene.add(make_shared<Quad>(Point3d(0,0,0), Vector3d(0,555,0), Vector3d(0,0,555), red));
+    scene.add(make_shared<Quad>(Point3d(113,554,127), Vector3d(330,0,0), Vector3d(0,0,305), light));
+    scene.add(make_shared<Quad>(Point3d(0,555,0), Vector3d(555,0,0), Vector3d(0,0,555), white));
+    scene.add(make_shared<Quad>(Point3d(0,0,0), Vector3d(555,0,0), Vector3d(0,0,555), white));
+    scene.add(make_shared<Quad>(Point3d(0,0,555), Vector3d(555,0,0), Vector3d(0,555,0), white));
+
+    shared_ptr<Object> box1 = box(Point3d(0,0,0), Point3d(165,330,165), white);
+    box1 = make_shared<RotateY>(box1, 15);
+    box1 = make_shared<Translate>(box1, Vector3d(265,0,295));
+
+    shared_ptr<Object> box2 = box(Point3d(0,0,0), Point3d(165,165,165), white);
+    box2 = make_shared<RotateY>(box2, -18);
+    box2 = make_shared<Translate>(box2, Vector3d(130,0,65));
+
+    scene.add(make_shared<ConstantMedium>(box1, 0.01, Color(0,0,0)));
+    scene.add(make_shared<ConstantMedium>(box2, 0.01, Color(1,1,1)));
+
+    scene.buildBVH();
+
+    scene.vfov      = 40;
+    scene.eye_pos   = Point3d(278, 278, -800);
+    scene.gaze_pos  = Point3d(278, 278, 0);
+    scene.up_dir    = Vector3d(0,1,0);
+
+    scene.defocus_angle = 0;
+
+    Renderer r;
+    r.spp = 200;
+
+    auto start = std::chrono::system_clock::now();
+    r.render(scene);
+    auto stop = std::chrono::system_clock::now();
+
+    std::cout << "\nDone!\n";
+    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << "h";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() % 60 << "min";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
+}
+
+void RTNW(int image_width, int spp) {
+    Scene boxes1;
+    auto ground = make_shared<Diffuse>(Color(0.48, 0.83, 0.53));
+
+    int boxes_per_side = 20;
+    for (int i = 0; i < boxes_per_side; i++) {
+        for (int j = 0; j < boxes_per_side; j++) {
+            auto w = 100.0;
+            auto x0 = -1000.0 + i*w;
+            auto z0 = -1000.0 + j*w;
+            auto y0 = 0.0;
+            auto x1 = x0 + w;
+            auto y1 = sample_double(1,101);
+            auto z1 = z0 + w;
+
+            boxes1.add(box(Point3d(x0,y0,z0), Point3d(x1,y1,z1), ground));
+        }
+    }
+
+    Scene scene(image_width, 1.0, Color());
+
+    auto light = make_shared<DiffuseLight>(Color(7, 7, 7));
+    scene.add(make_shared<Quad>(Point3d(123,554,147), vec3(300,0,0), vec3(0,0,265), light));
+
+    auto center1 = Point3d(400, 400, 200);
+    auto center2 = center1 + vec3(30,0,0);
+    auto sphere_material = make_shared<Diffuse>(Color(0.7, 0.3, 0.1));
+    scene.add(make_shared<sphere>(center1, center2, 50, sphere_material));
+
+    scene.add(make_shared<sphere>(Point3d(260, 150, 45), 50, make_shared<dielectric>(1.5)));
+    scene.add(make_shared<sphere>(
+        Point3d(0, 150, 145), 50, make_shared<metal>(Color(0.8, 0.8, 0.9), 1.0)
+    ));
+
+    auto boundary = make_shared<sphere>(Point3d(360,150,145), 70, make_shared<dielectric>(1.5));
+    scene.add(boundary);
+    scene.add(make_shared<constant_medium>(boundary, 0.2, Color(0.2, 0.4, 0.9)));
+    boundary = make_shared<sphere>(Point3d(0,0,0), 5000, make_shared<dielectric>(1.5));
+    scene.add(make_shared<constant_medium>(boundary, .0001, Color(1,1,1)));
+
+    auto emat = make_shared<Diffuse>(make_shared<image_texture>("earthmap.jpg"));
+    scene.add(make_shared<sphere>(Point3d(400,200,400), 100, emat));
+    auto pertext = make_shared<noise_texture>(0.2);
+    scene.add(make_shared<sphere>(Point3d(220,280,300), 80, make_shared<Diffuse>(pertext)));
+
+    Scene boxes2;
+    auto white = make_shared<Diffuse>(Color(.73, .73, .73));
+    int ns = 1000;
+    for (int j = 0; j < ns; j++) {
+        boxes2.add(make_shared<sphere>(Point3d::random(0,165), 10, white));
+    }
+
+    scene.add(make_shared<translate>(
+        make_shared<rotate_y>(
+            make_shared<bvh_node>(boxes2), 15),
+            vec3(-100,270,395)
+        )
+    );
+
+    scene.buildBVH();
+
+    scene.vfov      = 40;
+    scene.eye_pos   = Point3d(278, 278, -600);
+    scene.gaze_pos  = Point3d(278, 278, 0);
+    scene.up_dir    = Vector3d(0,1,0);
+
+    scene.defocus_angle = 0;
+
+    Renderer r;
+    r.spp = spp;
+
+    auto start = std::chrono::system_clock::now();
+    r.render(scene);
+    auto stop = std::chrono::system_clock::now();
+
+    std::cout << "\nDone!\n";
+    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::hours>(stop - start).count() << "h";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::minutes>(stop - start).count() % 60 << "min";
+    std::cout << " : " << std::chrono::duration_cast<std::chrono::seconds>(stop - start).count() % 60 << "s\n";
+}
+
 int main() {
-    int scene_index = 6;
+    int scene_index = 7;
     switch(scene_index) {
         case 0: bouncing_spheres(); break;
         case 1: checkered_spheres(); break;
         case 2: earth(); break;
         case 3: perlin_spheres(); break;
-        case 4: quads(); break;
+        case 4: Quads(); break;
         case 5: simple_light(); break;
         case 6: cornell_box(); break;
+        case 7: cornell_smoke(); break;
+        case 8: RTNW(800, 10000); break;
+        case 9: RTNW(400,   250); break;
     }
 }

@@ -22,7 +22,7 @@ class Diffuse : public Material {
 
         bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
         const override {
-            Vector3d wo = isect.normal + sample_random_dir();
+            Vector3d wo = isect.normal + sample_dir();
             if (wo.near_zero()) {
                 wo = isect.normal;
             } else {
@@ -55,7 +55,7 @@ class Metal : public Material {
         bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
         const override {
             // fuzzy dir = specular reflection dir + random vector in fuzz unit sphere .
-            Vector3d wo = reflect(ri.direction(), isect.normal) + fuzz * sample_random_dir();
+            Vector3d wo = reflect(ri.direction(), isect.normal) + fuzz * sample_dir();
             ro = Ray(isect.p, normalize(wo), ri.time());
             attenuation = albedo;
 
@@ -86,7 +86,7 @@ class Dielectric : public Material {
 
             bool cannot_refract = (refraction_index * sin_i > 1.0) ? true : false;
             auto wo = Vector3d();
-            if (fresnel(cos_i, refraction_index) <= sample_double() || cannot_refract) {
+            if (sample_double() >= fresnel(cos_i, refraction_index) || cannot_refract) {
                 wo = reflect(wi, N);
             } else {
                 wo = refract(wi, N, refraction_index);
@@ -110,11 +110,27 @@ class Dielectric : public Material {
 
 class DiffuseLight : public Material {
     public:
+        DiffuseLight(const Color &emit) : tex(make_shared<SolidColorTexture>(emit)) {}
         DiffuseLight(shared_ptr<Texture> tex) : tex(tex) {}
-        DiffuseLight(const Color &emit) : tex(make_shared<SolidColorTexture>(emit)) {} 
 
         Color emit(double u, double v, const Vector3d &p) const override {
             return tex->get_texColor(u, v, p);
+        }
+
+    private:
+        shared_ptr<Texture> tex;
+};
+
+class Isotropic : public Material {
+    public:
+        Isotropic(const Color &albedo) : tex(make_shared<SolidColorTexture>(albedo)) {}
+        Isotropic(shared_ptr<Texture> tex) : tex(tex) {}
+
+        bool scatter(const Ray &ri, const Intersection &isect, Color &attenuation, Ray &ro)
+        const override {
+            ro = Ray(isect.p, sample_dir(), ri.time()); // ro could be generated anywhere on unit sphere.
+            attenuation = tex->get_texColor(isect.tex_u, isect.tex_v, isect.p);
+            return true;
         }
 
     private:
