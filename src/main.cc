@@ -384,7 +384,7 @@ void RTNW(int image_width, int spp) {
     auto sphere_material = make_shared<Diffuse>(Color(0.7, 0.3, 0.1));
     scene.add(make_shared<Sphere>(center1, center2, 50, sphere_material));
 
-    // test dielectric & metal,
+    // test dielectric & metal.
     scene.add(make_shared<Sphere>(Point3d(260, 150, 45), 50, make_shared<Dielectric>(1.5)));
     scene.add(make_shared<Sphere>(
         Point3d(0, 150, 145), 50, make_shared<Metal>(Color(0.8, 0.8, 0.9), 1.0)

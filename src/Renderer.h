@@ -65,7 +65,7 @@ class Renderer {
                 if (!isect.m->scatter(ri, isect, attenuation, ro)) {
                     return Le;
                 }
-                
+
                 // compute scattered radiance by recursively self-calling, which contains direct & indirect illumination.
                 Color Ls = attenuation * get_color(ro, scene) / RussianRoulette;
 

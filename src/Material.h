@@ -81,7 +81,7 @@ class Dielectric : public Material {
             double refraction_index = isect.happend_outside ? (1.0 / ior) : ior; // defaultly treat outside as air.
 
             Vector3d wi = ri.direction(), N = isect.normal;
-            double cos_i = std::fmin(dotProduct(wi, N), 1.0);
+            double cos_i = std::fmin(dotProduct(-wi, N), 1.0);
             double sin_i = std::sqrt(1 - cos_i*cos_i);
 
             bool cannot_refract = (refraction_index * sin_i > 1.0) ? true : false;
