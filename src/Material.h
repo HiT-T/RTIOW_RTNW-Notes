@@ -85,8 +85,8 @@ class Dielectric : public Material {
             double sin_i = std::sqrt(1 - cos_i*cos_i);
 
             bool cannot_refract = (refraction_index * sin_i > 1.0) ? true : false;
-            auto wo = Vector3d();
-            if (sample_double() >= fresnel(cos_i, refraction_index) || cannot_refract) {
+            Vector3d wo;
+            if (cannot_refract || sample_double() < fresnel(cos_i, refraction_index)) {
                 wo = reflect(wi, N);
             } else {
                 wo = refract(wi, N, refraction_index);

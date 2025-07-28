@@ -17,7 +17,7 @@ class Intersection {
 
         // this guarantees normal always points agianst the ray.
         void set_normal(const Ray &ri, const Vector3d &outward_normal) {
-            happend_outside = dotProduct(ri.direction(), outward_normal) < 0.0 ? true : false;
+            happend_outside = dotProduct(ri.direction(), outward_normal) < 0.0;
             normal = happend_outside ? outward_normal : -outward_normal;
         }
 };
